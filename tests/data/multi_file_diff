@@ -1,0 +1,122 @@
+diff --git a/HISTORY.rst b/HISTORY.rst
+index 0d0d216..5828c9d 100644
+--- a/HISTORY.rst
++++ b/HISTORY.rst
+@@ -3,6 +3,41 @@
+ Release History
+ ---------------
+ 
++2.5.0 (2014-12-01)
++++++++++++++++++++
++
++**Improvements**
++
++- Allow usage of urllib3's Retry object with HTTPAdapters (#2216)
++- The ``iter_lines`` method on a response now accepts a delimiter with which
++  to split the content (#2295)
++
++**Behavioural Changes**
++
++- Add deprecation warnings to functions in requests.utils that will be removed
++  in 3.0 (#2309)
++- Sessions used by the functional API are always closed (#2326)
++- Restrict requests to HTTP/1.1 and HTTP/1.0 (stop accepting HTTP/0.9) (#2323)
++
++**Bugfixes**
++
++- Only parse the URL once (#2353)
++- Allow Content-Length header to always be overriden (#2332)
++- Properly handle files in HTTPDigestAuth (#2333)
++- Cap redirect_cache size to prevent memory abuse (#2299)
++- Fix HTTPDigestAuth handling of redirects after authenticating successfully
++  (#2253)
++- Fix crash with custom method parameter to Session.request (#2317)
++- Fix how Link headers are parsed using the regular expression library (#2271)
++
++**Documentation**
++
++- Add more references for interlinking (#2348)
++- Update CSS for theme (#2290)
++- Update width of buttons and sidebar (#2289)
++- Replace references of Gittip with Gratipay (#2282)
++- Add link to changelog in sidebar (#2273)
++
+ 2.4.3 (2014-10-06)
+ ++++++++++++++++++
+ 
+diff --git a/requests/__init__.py b/requests/__init__.py
+index d5e1956..22cd57d 100644
+--- a/requests/__init__.py
++++ b/requests/__init__.py
+@@ -42,8 +42,8 @@ is at <http://python-requests.org>.
+ """
+ 
+ __title__ = 'requests'
+-__version__ = '2.4.3'
+-__build__ = 0x020403
++__version__ = '2.5.0'
++__build__ = 0x020500
+ __author__ = 'Kenneth Reitz'
+ __license__ = 'Apache 2.0'
+ __copyright__ = 'Copyright 2014 Kenneth Reitz'
+diff --git a/test_requests.py b/test_requests.py
+index 4624f09..2d3ee62 100755
+--- a/test_requests.py
++++ b/test_requests.py
+@@ -258,7 +258,7 @@ class RequestsTestCase(unittest.TestCase):
+         """Do not send headers in Session.headers with None values."""
+         ses = requests.Session()
+         ses.headers['Accept-Encoding'] = None
+-        req = requests.Request('GET', 'http://httpbin.org/get')
++        req = requests.Request('GET', httpbin('get'))
+         prep = ses.prepare_request(req)
+         assert 'Accept-Encoding' not in prep.headers
+ 
+@@ -1008,12 +1008,12 @@ class RequestsTestCase(unittest.TestCase):
+         assert s == "Basic dGVzdDp0ZXN0"
+ 
+     def test_requests_history_is_saved(self):
+-        r = requests.get('https://httpbin.org/redirect/5')
++        r = requests.get(httpbin('redirect/5'))
+         total = r.history[-1].history
+         i = 0
+         for item in r.history:
+             assert item.history == total[0:i]
+-            i=i+1
++            i = i + 1
+ 
+     def test_json_param_post_content_type_works(self):
+         r = requests.post(
+@@ -1350,7 +1350,7 @@ class TestMorselToCookieMaxAge(unittest.TestCase):
+ class TestTimeout:
+     def test_stream_timeout(self):
+         try:
+-            requests.get('https://httpbin.org/delay/10', timeout=2.0)
++            requests.get(httpbin('delay/10'), timeout=2.0)
+         except requests.exceptions.Timeout as e:
+             assert 'Read timed out' in e.args[0].args[0]
+ 
+@@ -1450,7 +1450,7 @@ class TestRedirects:
+ 
+     def test_requests_are_updated_each_time(self):
+         session = RedirectSession([303, 307])
+-        prep = requests.Request('POST', 'http://httpbin.org/post').prepare()
++        prep = requests.Request('POST', httpbin('post')).prepare()
+         r0 = session.send(prep)
+         assert r0.request.method == 'POST'
+         assert session.calls[-1] == SendCall((r0.request,), {})
+@@ -1534,12 +1534,12 @@ def test_prepare_unicode_url():
+ def test_urllib3_retries():
+     from requests.packages.urllib3.util import Retry
+     s = requests.Session()
+-    s.mount('https://', HTTPAdapter(max_retries=Retry(
++    s.mount('http://', HTTPAdapter(max_retries=Retry(
+         total=2, status_forcelist=[500]
+     )))
+ 
+     with pytest.raises(RetryError):
+-        s.get('https://httpbin.org/status/500')
++        s.get(httpbin('status/500'))
+ 
+ if __name__ == '__main__':
+     unittest.main()
