@@ -67,6 +67,8 @@ def parse(unified_diff):
     """
     Parse the unified diff into a dictionary containing the
     watchables.
+
+    :param unified_diff: File-like object containing the unified_diff.
     """
     lines = [line.strip() for line in unified_diff.readlines()]
     watchables = dict()
@@ -75,6 +77,5 @@ def parse(unified_diff):
         if is_header(line) and line.startswith("--- "):
             file_name = extract_filename(line)
             watchables[file_name] = hunks(lines[l_no+2:])
-            continue
 
     return watchables

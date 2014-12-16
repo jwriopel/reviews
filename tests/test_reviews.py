@@ -56,6 +56,7 @@ def test_is_header(h_line):
 
 def compare_watchables(actual, expected):
     """ Assert that the actual watchables are the same as the expected """
+    assert len(actual) == len(expected)
     actual_files = actual.keys()
     for exp_file in expected:
         exp_hunk = expected[exp_file]
