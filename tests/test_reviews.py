@@ -42,8 +42,7 @@ def test_multiple_files():
             "a/HISTORY.rst",
     ]
 
-    parser = reviews.Parser(read_diff("multi_file_diff"))
-    watchables = parser.parse()
+    watchables = reviews.parse(read_diff("multi_file_diff"))
 
     actuals = watchables.keys()
     assert sorted(actuals) == sorted(expected)
@@ -52,8 +51,7 @@ def test_multiple_files():
 @pytest.mark.parametrize("h_line", HEADER_LINES)
 def test_is_header(h_line):
     """ test for the Parser.is_header method """
-    parser = reviews.Parser(None)
-    assert parser.is_header(h_line)
+    assert reviews.is_header(h_line)
 
 
 def compare_watchables(actual, expected):
@@ -71,8 +69,7 @@ def compare_watchables(actual, expected):
 @pytest.mark.parametrize("h_line", HEADER_LINES)
 def test_extract_filename(h_line):
     """ test that the filenames from a header is properly parsed """
-    parser = reviews.Parser(simple_diff)
-    file_name = parser.extract_filename(h_line)
+    file_name = reviews.extract_filename(h_line)
 
     if h_line.startswith("---"):
         assert file_name == "from_file"
@@ -84,10 +81,9 @@ def test_parse_hunks(simple_diff):
     """ test the parser can parse the hunks properly """
 
     expected = [((-2, 9), (+2, 9))]
-    parser = reviews.Parser(None)
 
     lines = [l.strip() for l in simple_diff.readlines()]
-    actual_hunks = parser.hunks(lines[2:])
+    actual_hunks = reviews.hunks(lines[2:])
     assert len(actual_hunks) == len(expected)
 
     for actual_hunk in actual_hunks:
@@ -97,11 +93,10 @@ def test_parse_hunks(simple_diff):
 def test_build_simple_watchable(simple_diff):
     """ use the Parser to parse out the 'watchable' things  in diff """
 
-    parser = reviews.Parser(simple_diff)
     expected = {
             "from_file": [((-2, 9), (+2, 9))]
     }
-    actual = parser.parse()
+    actual = reviews.parse(simple_diff)
     compare_watchables(actual, expected)
 
 
@@ -123,9 +118,7 @@ def test_multi_file_watchables():
             ]
     }
 
-    parser = reviews.Parser(read_diff("multi_file_diff"))
-    actuals = parser.parse()
-
+    actuals = reviews.parse(read_diff("multi_file_diff"))
     assert len(actuals) == len(expected)
 
     compare_watchables(actuals, expected)
