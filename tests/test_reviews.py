@@ -33,17 +33,6 @@ def simple_diff():
     return read_diff("simple_diff")
 
 
-def test_single_file(simple_diff):
-    """ test the the files can be parsed and returned correctly """
-
-    expected = ["from_file", "to_file"]
-    actuals = reviews.files(simple_diff)
-
-    assert len(actuals) == len(expected)
-    for actual in actuals:
-        assert actual in expected
-
-
 def test_multiple_files():
     """ test all the expected files appear """
 
