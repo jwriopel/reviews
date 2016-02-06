@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 See README.md
+
+Most programs can use this module by simply calling the `parse` method, which
+will return file information from a diff file-like object. This dictionary
+contains the changes that can be tracked by reviews, the structure is
+{file_name: [hunk_info]} hunk_info is a list  of tuples containing the ranges
+of lines that were changed in the file.
+
 """
 
 import re
@@ -38,6 +45,8 @@ def hunks(lines):
 
     :param lines: List of lines to find the hunks from.
     """
+    h_ints = lambda hinfo: tuple(int(i) for i in hinfo.split(","))
+
     file_hunks = []
     for line in lines:
         if is_header(line):
@@ -45,28 +54,17 @@ def hunks(lines):
         elif line.startswith("@@"):
             h_res = HUNK_RE.search(line)
             file_hunks.append((
-                __hunk_ints(h_res.group(1)),
-                __hunk_ints(h_res.group(2))
+                h_ints(h_res.group(1)),
+                h_ints(h_res.group(2))
             ))
 
     return file_hunks
 
 
-def __hunk_ints(hunk_info):
-    """
-    Convert the tuple of hunk info from strings to ints
-
-    :param hunk_pair: String containing the raw line information for a
-        hunk ("xxx,yyy").
-    :return: Tuple containig hunk info as ints (xxx, yyy).
-    """
-    return tuple(int(i) for i in hunk_info.split(","))
-
-
 def parse(unified_diff):
     """
-    Parse the unified diff into a dictionary containing the
-    watchables.
+    Parse the unified diff into a dictionary containing the watchable file
+    information.
 
     :param unified_diff: File-like object containing the unified_diff.
     """
