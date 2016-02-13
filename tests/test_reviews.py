@@ -134,3 +134,19 @@ def test_overlaps():
     actual = reviews.overlaps(changed_range, watched_range)
 
     assert actual == expected
+
+
+def test_scan():
+    """Test that all ranges being watched are returned by scan."""
+    expected = [
+        ("a/requests/__init__.py", [[42, 50]]),
+        ("a/HISTORY.rst", [[3, 44]]),
+        ("a/test_requests.py", [[258, 265]]),
+        ("a/test_requests.py", [[1008, 1020]]),
+        ("a/test_requests.py", [[1350, 1357]]),
+        ("a/test_requests.py", [[1450, 1457]]),
+        ("a/test_requests.py", [[1534, 1546]])
+    ]
+    watching = reviews.parse(read_diff("multi_file_diff"))
+    reviews_needed = reviews.scan(read_diff("multi_file_diff"), watching)
+    assert len(expected) == len(reviews_needed)
