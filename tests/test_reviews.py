@@ -123,3 +123,14 @@ def test_multi_file_watchables():
     assert len(actuals) == len(expected)
 
     compare_watchables(actuals, expected)
+
+
+def test_overlaps():
+    """Test that changes overlapping with watching ranges are caught."""
+
+    changed_range = (45, 75)
+    watched_range = (35, 51)
+    expected = True
+    actual = reviews.overlaps(changed_range, watched_range)
+
+    assert actual == expected

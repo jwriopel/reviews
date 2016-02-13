@@ -78,8 +78,22 @@ def parse(unified_diff):
             # the hunk will be two tuples, the `to` and `from` ranges
             # for this chunk
             for _, t_info in hunks(lines[l_no+2:]):
-                changed_lines.append((t_info[0], t_info[0]+t_info[1]))
+                changed_lines.append((t_info[0], t_info[0] + t_info[1]))
 
             watchables[file_name] = changed_lines
 
     return watchables
+
+
+def overlaps(changed_range, watched_range):
+    """Return True if there were changes made to lines within the watched
+    range."""
+
+    changed_start, changed_end = changed_range
+    watched_start, watched_end = watched_range
+
+    if (changed_start >= watched_start and changed_start <= watched_end) or \
+            ((changed_end >= watched_start) and (changed_end <= watched_end)):
+        overlap = True
+
+    return overlap
