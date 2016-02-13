@@ -11,6 +11,7 @@ the end line of the change.
 
 import re
 
+REVIEWS_CONFIG = {"conf": "~/.reviews"}
 
 FILES_RE = re.compile(r"[-|+]{3}\s+([\w|\W][^\t]*)\s*\S*")
 HUNK_RE = re.compile(r"^@@\s([-|\+]\d+,\d+)\s(\+\d+,\d+)\s@@")
@@ -92,6 +93,7 @@ def overlaps(changed_range, watched_range):
     changed_start, changed_end = changed_range
     watched_start, watched_end = watched_range
 
+    overlap = False
     if (changed_start >= watched_start and changed_start <= watched_end) or \
             ((changed_end >= watched_start) and (changed_end <= watched_end)):
         overlap = True
