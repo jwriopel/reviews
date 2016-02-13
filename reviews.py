@@ -99,3 +99,29 @@ def overlaps(changed_range, watched_range):
         overlap = True
 
     return overlap
+
+
+def scan(diff, watching):
+    """Find and changes in `diff` that are being watched.
+
+    :param diff: File-like object containing the diff to be scanned.
+    :param wathcing: Dictionary containing the hunks that are being watched.
+
+    :return: List of tuples containing watched files and ranges modified in
+        the diff, each tuple has form: (filename, (range start, range end)).
+    """
+
+    to_diff = parse(diff)
+    watched_files = [tf for tf in to_diff.keys() if tf in watching]
+
+    reviews_needed = []
+    for watched_file in watched_files:
+        to_ranges = to_diff[watched_file]
+        watched_ranges = watching[watched_file]
+
+        for to_range in to_ranges:
+            for watched_range in watched_ranges:
+                if overlaps(to_range, watched_range):
+                    reviews_needed.append((watched_file, watched_range))
+
+    return reviews_needed
