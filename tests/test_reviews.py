@@ -95,7 +95,7 @@ def test_build_simple_watchable(simple_diff):
     """ use the Parser to parse out the 'watchable' things  in diff """
 
     expected = {
-            "from_file": [((-2, 9), (+2, 9))]
+            "from_file": [((2, 11))]
     }
     actual = reviews.parse(simple_diff)
     compare_watchables(actual, expected)
@@ -108,14 +108,14 @@ def test_multi_file_watchables():
     """
 
     expected = {
-            "a/requests/__init__.py": [((-42, 8), (+42, 8))],
-            "a/HISTORY.rst": [((-3, 6), (+3, 41))],
+            "a/requests/__init__.py": [(42, 50)],
+            "a/HISTORY.rst": [(3, 44)],
             "a/test_requests.py": [
-                ((-258, 7), (258, 7)),
-                ((-1008, 12), (1008, 12)),
-                ((-1350, 7), (1350, 7)),
-                ((-1450, 7), (1450, 7)),
-                ((-1534, 12), (1534, 12))
+                (258, 265),
+                (1008, 1020),
+                (1350, 1357),
+                (1450, 1457),
+                (1534, 1546)
             ]
     }
 
@@ -123,3 +123,14 @@ def test_multi_file_watchables():
     assert len(actuals) == len(expected)
 
     compare_watchables(actuals, expected)
+
+
+def test_overlaps():
+    """Test that changes overlapping with watching ranges are caught."""
+
+    changed_range = (45, 75)
+    watched_range = (35, 51)
+    expected = True
+    actual = reviews.overlaps(changed_range, watched_range)
+
+    assert actual == expected

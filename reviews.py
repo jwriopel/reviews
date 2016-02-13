@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-See README.md
+Use this module to parse data from a unified diff so that the changes can be
+saved and tracked.
 
-Most programs can use this module by simply calling the `parse` method, which
-will return file information from a diff file-like object. This dictionary
-contains the changes that can be tracked by reviews, the structure is
-{file_name: [hunk_info]} hunk_info is a list  of tuples containing the ranges
-of lines that were changed in the file.
-
+The parse function should be enough to extract the information needed to track
+a change. It will return a dictionary with each file being the key and the
+value is a list of tuples. Each tuple contains the start line of the change and
+the end line of the change.
 """
 
 import re
@@ -73,7 +72,28 @@ def parse(unified_diff):
     for l_no, line in enumerate(lines):
 
         if is_header(line) and line.startswith("--- "):
+
             file_name = extract_filename(line)
-            watchables[file_name] = hunks(lines[l_no+2:])
+            changed_lines = watchables.get(file_name, [])
+            # the hunk will be two tuples, the `to` and `from` ranges
+            # for this chunk
+            for _, t_info in hunks(lines[l_no+2:]):
+                changed_lines.append((t_info[0], t_info[0] + t_info[1]))
+
+            watchables[file_name] = changed_lines
 
     return watchables
+
+
+def overlaps(changed_range, watched_range):
+    """Return True if there were changes made to lines within the watched
+    range."""
+
+    changed_start, changed_end = changed_range
+    watched_start, watched_end = watched_range
+
+    if (changed_start >= watched_start and changed_start <= watched_end) or \
+            ((changed_end >= watched_start) and (changed_end <= watched_end)):
+        overlap = True
+
+    return overlap
