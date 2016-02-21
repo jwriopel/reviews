@@ -13,8 +13,8 @@ import re
 
 REVIEWS_CONFIG = {"conf": "~/.reviews"}
 
-FILES_RE = re.compile(r"[-|+]{3}\s+([\w|\W][^\t]*)\s*\S*")
-HUNK_RE = re.compile(r"^@@\s([-|\+]\d+,\d+)\s(\+\d+,\d+)\s@@")
+__FILES_RE = re.compile(r"[-|+]{3}\s+([\w|\W][^\t]*)\s*\S*")
+__HUNK_RE = re.compile(r"^@@\s([-|\+]\d+,\d+)\s(\+\d+,\d+)\s@@")
 
 def is_header(line):
     """ True if the line is a 'header' - meaning file """
@@ -29,7 +29,7 @@ def extract_filename(line):
     :param line: A header line from the diff.
     :return: String containing the file name.
     """
-    search_res = FILES_RE.search(line)
+    search_res = __FILES_RE.search(line)
     f_name = None
 
     if search_res:
@@ -52,7 +52,7 @@ def hunks(lines):
         if is_header(line):
             break
         elif line.startswith("@@"):
-            h_res = HUNK_RE.search(line)
+            h_res = __HUNK_RE.search(line)
             file_hunks.append((
                 h_ints(h_res.group(1)),
                 h_ints(h_res.group(2))
