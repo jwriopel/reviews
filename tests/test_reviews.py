@@ -148,5 +148,6 @@ def test_scan():
         ("a/test_requests.py", [[1534, 1546]])
     ]
     watching = reviews.parse(read_diff("multi_file_diff"))
-    reviews_needed = reviews.scan(read_diff("multi_file_diff"), watching)
-    assert len(expected) == len(reviews_needed)
+    new_changes = reviews.scan(reviews.parse(read_diff("multi_file_diff")),
+            watching)
+    assert len(expected) == len(new_changes)
