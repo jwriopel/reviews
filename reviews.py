@@ -68,7 +68,7 @@ def parse(unified_diff):
 
     :param unified_diff: File-like object containing the unified_diff.
     """
-    lines = [line.strip() for line in unified_diff.readlines()]
+    lines = [line.strip() for line in unified_diff]
     watchables = dict()
     for l_no, line in enumerate(lines):
 
