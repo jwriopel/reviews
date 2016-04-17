@@ -1,4 +1,6 @@
 *.pyc
 *.swp
 *.notes
+.tox
+tags
 pytest.ini
